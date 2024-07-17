@@ -1,17 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const baseCurrencySelect = document.getElementById('base-currency');
-    const targetCurrencySelect = document.getElementById('target-currency');
-    const amountInput = document.getElementById('amount');
-    const convertedAmountSpan = document.getElementById('converted-amount');
-    const historicalRatesBtn = document.getElementById('historical-rates');
-    const historicalRatesContainer = document.getElementById('historical-rates-container');
-    const saveFavoriteBtn = document.getElementById('save-favorite');
-    const favoriteCurrencyPairsDiv = document.getElementById('favorite-currency-pairs');
+    // Select various elements from the DOM for interaction
+    const baseCurrencySelect = document.getElementById('base-currency'); // Get the base currency select element
+    const targetCurrencySelect = document.getElementById('target-currency'); // Get the target currency select element
+    const amountInput = document.getElementById('amount'); // Get the input element for amount
+    const convertedAmountSpan = document.getElementById('converted-amount'); // Get the span element to display converted amount
+    const historicalRatesBtn = document.getElementById('historical-rates'); // Get the button element for historical rates
+    const historicalRatesContainer = document.getElementById('historical-rates-container'); // Get the container to display historical rates
+    const saveFavoriteBtn = document.getElementById('save-favorite'); // Get the button element to save favorite currency pair
+    const favoriteCurrencyPairsDiv = document.getElementById('favorite-currency-pairs'); // Get the div to display favorite currency pairs
 
+    // API key and base URL for the currency API
     const apiKey = 'fca_live_t4a5lXL2CPMqZnYq1WZOWNanCQNNkWnSePT1NbJf';
     const apiBaseURL = 'https://api.freecurrencyapi.com/v1';
 
-    // Fetch and populate currency options from /v1/currencies
+    // Function to fetch and populate currency options
     const fetchCurrencies = () => {
         fetch(`${apiBaseURL}/currencies?apikey=${apiKey}`)
             .then(response => {
@@ -23,11 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 const currencies = Object.keys(data.data);
                 currencies.forEach(currency => {
-                    const option = document.createElement('option');
-                    option.value = currency;
-                    option.textContent = currency;
-                    baseCurrencySelect.appendChild(option.cloneNode(true));
-                    targetCurrencySelect.appendChild(option.cloneNode(true));
+                    const option = document.createElement('option'); // Create an option element
+                    option.value = currency; // Set the value of the option element
+                    option.textContent = currency; // Set the text content of the option element
+                    baseCurrencySelect.appendChild(option.cloneNode(true)); // Append the option to base currency select
+                    targetCurrencySelect.appendChild(option.cloneNode(true)); // Append the option to target currency select
                 });
             })
             .catch(error => {
@@ -35,14 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     };
 
-    // Handle conversion using /v1/latest
+    // Function to handle currency conversion
     const convertCurrency = () => {
-        const baseCurrency = baseCurrencySelect.value;
-        const targetCurrency = targetCurrencySelect.value;
-        const amount = parseFloat(amountInput.value);
+        const baseCurrency = baseCurrencySelect.value; // Get selected base currency
+        const targetCurrency = targetCurrencySelect.value; // Get selected target currency
+        const amount = parseFloat(amountInput.value); // Get input amount and convert to float
 
         if (isNaN(amount) || amount <= 0) {
-            convertedAmountSpan.textContent = 'Invalid amount';
+            convertedAmountSpan.textContent = 'Invalid amount'; // Display error if amount is invalid
             return;
         }
 
@@ -54,12 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return response.json();
             })
             .then(data => {
-                const rate = data.data[targetCurrency];
+                const rate = data.data[targetCurrency]; // Get the exchange rate
                 if (rate) {
-                    const convertedAmount = (amount * rate).toFixed(2);
-                    convertedAmountSpan.textContent = `${convertedAmount} ${targetCurrency}`;
+                    const convertedAmount = (amount * rate).toFixed(2); // Calculate converted amount
+                    convertedAmountSpan.textContent = `${convertedAmount} ${targetCurrency}`; // Display converted amount
                 } else {
-                    convertedAmountSpan.textContent = 'Conversion rate not available';
+                    convertedAmountSpan.textContent = 'Conversion rate not available'; // Display error if rate is not available
                 }
             })
             .catch(error => {
@@ -67,11 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     };
 
-    // Handle historical rates using /v1/historical
+    // Function to fetch historical exchange rates
     const fetchHistoricalRates = () => {
         console.log('Fetching historical rates...');
-        const baseCurrency = baseCurrencySelect.value;
-        const targetCurrency = targetCurrencySelect.value;
+        const baseCurrency = baseCurrencySelect.value; // Get selected base currency
+        const targetCurrency = targetCurrencySelect.value; // Get selected target currency
         const date = '2024-07-10'; // Use hardcoded date
         const historicalApiURL = `${apiBaseURL}/historical?apikey=${apiKey}&date=${date}&base_currency=${baseCurrency}`;
         console.log('Historical API URL:', historicalApiURL);
@@ -89,10 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 console.log('Full historical rates data:', data);
                 if (data.data && data.data[date][targetCurrency]) {
-                    const rate = data.data[date][targetCurrency];
-                    historicalRatesContainer.textContent = `Historical exchange rate on ${date}: 1 ${baseCurrency} = ${rate} ${targetCurrency}`;
+                    const rate = data.data[date][targetCurrency]; // Get historical exchange rate
+                    historicalRatesContainer.textContent = `Historical exchange rate on ${date}: 1 ${baseCurrency} = ${rate} ${targetCurrency}`; // Display historical rate
                 } else {
-                    historicalRatesContainer.textContent = 'Historical rate not available';
+                    historicalRatesContainer.textContent = 'Historical rate not available'; // Display error if historical rate is not available
                     console.log('Historical rates data:', data.data);
                 }
             })
@@ -102,10 +104,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     };
 
-    // Handle saving favorite currency pairs
+    // Function to save favorite currency pairs
     const saveFavorite = () => {
-        const baseCurrency = baseCurrencySelect.value;
-        const targetCurrency = targetCurrencySelect.value;
+        const baseCurrency = baseCurrencySelect.value; // Get selected base currency
+        const targetCurrency = targetCurrencySelect.value; // Get selected target currency
 
         console.log('Saving favorite:', baseCurrency, targetCurrency);
 
@@ -114,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ baseCurrency, targetCurrency })
+            body: JSON.stringify({ baseCurrency, targetCurrency }) // Send favorite currency pair as JSON
         })
             .then(response => {
                 if (!response.ok) {
@@ -124,21 +126,21 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(favorite => {
                 console.log('Saved favorite:', favorite);
-                const favoriteButton = document.createElement('button');
+                const favoriteButton = document.createElement('button'); // Create button for favorite currency pair
                 favoriteButton.textContent = `${favorite.baseCurrency}/${favorite.targetCurrency}`;
                 favoriteButton.addEventListener('click', () => {
-                    baseCurrencySelect.value = favorite.baseCurrency;
-                    targetCurrencySelect.value = favorite.targetCurrency;
-                    convertCurrency();
+                    baseCurrencySelect.value = favorite.baseCurrency; // Set base currency to favorite
+                    targetCurrencySelect.value = favorite.targetCurrency; // Set target currency to favorite
+                    convertCurrency(); // Convert currency
                 });
-                favoriteCurrencyPairsDiv.appendChild(favoriteButton);
+                favoriteCurrencyPairsDiv.appendChild(favoriteButton); // Append button to favorite currency pairs div
             })
             .catch(error => {
                 console.error('Error saving favorite:', error);
             });
     };
 
-    // Fetch and display favorite currency pairs
+    // Function to fetch and display favorite currency pairs
     const fetchFavorites = () => {
         fetch('/api/favorites')
             .then(response => {
@@ -149,14 +151,14 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(favorites => {
                 favorites.forEach(favorite => {
-                    const favoriteButton = document.createElement('button');
+                    const favoriteButton = document.createElement('button'); // Create button for each favorite pair
                     favoriteButton.textContent = `${favorite.baseCurrency}/${favorite.targetCurrency}`;
                     favoriteButton.addEventListener('click', () => {
-                        baseCurrencySelect.value = favorite.baseCurrency;
-                        targetCurrencySelect.value = favorite.targetCurrency;
-                        convertCurrency();
+                        baseCurrencySelect.value = favorite.baseCurrency; // Set base currency to favorite
+                        targetCurrencySelect.value = favorite.targetCurrency; // Set target currency to favorite
+                        convertCurrency(); // Convert currency
                     });
-                    favoriteCurrencyPairsDiv.appendChild(favoriteButton);
+                    favoriteCurrencyPairsDiv.appendChild(favoriteButton); // Append button to favorite currency pairs div
                 });
             })
             .catch(error => {
@@ -164,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     };
 
-    // Fetch API status using /v1/status
+    // Function to fetch the API status
     const fetchAPIStatus = () => {
         fetch(`${apiBaseURL}/status?apikey=${apiKey}`)
             .then(response => {
@@ -174,25 +176,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 return response.json();
             })
             .then(status => {
-                console.log('API Status:', status);
+                console.log('API Status:', status); // Log the API status
             })
             .catch(error => {
                 console.error('Error fetching API status:', error);
             });
     };
 
-    // Event listeners
-    baseCurrencySelect.addEventListener('change', convertCurrency);
-    targetCurrencySelect.addEventListener('change', convertCurrency);
-    amountInput.addEventListener('input', convertCurrency);
-    historicalRatesBtn.addEventListener('click', fetchHistoricalRates);
-    saveFavoriteBtn.addEventListener('click', saveFavorite);
+    // Event listeners for various actions
+    baseCurrencySelect.addEventListener('change', convertCurrency); // Convert currency when base currency changes
+    targetCurrencySelect.addEventListener('change', convertCurrency); // Convert currency when target currency changes
+    amountInput.addEventListener('input', convertCurrency); // Convert currency when amount input changes
+    historicalRatesBtn.addEventListener('click', fetchHistoricalRates); // Fetch historical rates on button click
+    saveFavoriteBtn.addEventListener('click', saveFavorite); // Save favorite currency pair on button click
 
-    // Initialize
-    fetchCurrencies();
-    fetchFavorites();
-    fetchAPIStatus();
+    // Initialize the app by fetching currencies, favorites, and API status
+    fetchCurrencies(); // Fetch and populate currency options
+    fetchFavorites(); // Fetch and display favorite currency pairs
+    fetchAPIStatus(); // Fetch the API status
 });
+
 
 
 
